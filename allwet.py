@@ -672,149 +672,152 @@ class Rotator(object):
         self.xHead = self.xHead + distance
         for seg in self.segments:
             seg.runner_Xmove(distance)
-##Main Inits
 
-pygame.init() 
-WIDTH = 480*2
-HEIGHT = 320*2
-screen = pygame.display.set_mode((WIDTH, HEIGHT),0, 32)
-
-clock = pygame.time.Clock()
-FPS = 40
-
-forestGreen = (34, 139, 34)
-darkRed = (139, 0, 0)
-teal = (0, 128, 128)
-red, green, blue = 90, 200, 60
-
-i = 0
-
-myfont = pygame.font.SysFont("monospace", 30)
-
-##/Main Inits
-
-##Object inits!
-
-    ## = ( window, True:Arrows/False:WASD, True:Top of screen/False:Bottom of Screen, speed, image path)
-    ##FIXME default speed not remembered, reset to 2 in start
-runnerTop = Runner(screen, False, True, 5, 'Images/ShyGuyMSS.PNG')
-
-##Sprinklers are created and added by the runner, per his distance see PROCESSES
-##But need init.
-sprinks = []
-
-##/Object inits!
-
-##Drawing Loooooop!
-while True:
+if __name__ == "__main__":
     
-    ##PROCESSES
+    ##Main Inits
+    pygame.init() 
+    WIDTH = 480*2
+    HEIGHT = 320*2
+    screen = pygame.display.set_mode((WIDTH, HEIGHT),0, 32)
     
-    ##Ask Runner if his distance warrants new sprinklers
-    ##FIXME Using multiple runners...will make a gazillion sprinklers.
-    for dude in Runner:
-        ##Pass sprinks for append/delete
-        sprinks = dude.check_dist_add(sprinks)
-        
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()         
+    clock = pygame.time.Clock()
+    FPS = 40
     
-    for sprinkler in Rotator:
-        
-        ##Sprinklers now start placed
-        ##Check if not placed, place new sprinklers
-        ##if not sprinkler.placed:
-        ##    sprinkler.xHead = randrange(50, (WIDTH+300)) ##Spread out sprinklers
-        ##    sprinkler.yHead = randrange(-50, (HEIGHT+50))
-        ##    sprinkler.placed = True
-        
-        if not sprinkler.placed:
-            print 'Woops!'
-        
-        ##Check if sprinkler is off the screen
-        ##FIXME ought to be a method of the sprinkler itself.
-        if sprinkler.xHead < (-150):
+    forestGreen = (34, 139, 34)
+    darkRed = (139, 0, 0)
+    teal = (0, 128, 128)
+    red, green, blue = 90, 200, 60
     
-            ##Move sprinkler
+    i = 0
+    
+    myfont = pygame.font.SysFont("monospace", 30)
+    
+    ##/Main Inits
+    
+    ##Object inits!
+    
+        ## = ( window, True:Arrows/False:WASD, True:Top of screen/False:Bottom of Screen, speed, image path)
+        ##FIXME default speed not remembered, reset to 2 in start
+    runnerTop = Runner(screen, False, True, 5, 'Images/ShyGuyMSS.PNG')
+    
+    ##Sprinklers are created and added by the runner, per his distance see PROCESSES
+    ##But need init.
+    sprinks = []
+    
+    ##/Object inits!
+    
+    ##Drawing Loooooop!
+    while True:
+    
+        ##PROCESSES
+    
+        ##Ask Runner if his distance warrants new sprinklers
+        ##FIXME Using multiple runners...will make a gazillion sprinklers.
+        for dude in Runner:
+            ##Pass sprinks for append/delete
+            sprinks = dude.check_dist_add(sprinks)
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()         
+    
+        for sprinkler in Rotator:
+        
+            ##Sprinklers now start placed
+            ##Check if not placed, place new sprinklers
+            ##if not sprinkler.placed:
+            ##    sprinkler.xHead = randrange(50, (WIDTH+300)) ##Spread out sprinklers
+            ##    sprinkler.yHead = randrange(-50, (HEIGHT+50))
+            ##    sprinkler.placed = True
+        
+            if not sprinkler.placed:
+                print 'Woops!'
+        
+            ##Check if sprinkler is off the screen
             ##FIXME ought to be a method of the sprinkler itself.
-            sprinkler.xHead = sprinkler.xHead + (WIDTH+(randrange(150, 500)))
-            sprinkler.yHead = randrange(-50, (HEIGHT+50))
-            sprinkler.init_segments()
+            if sprinkler.xHead < (-150):
     
-            randomDir = randrange(1, 3)
-            if randomDir % 2 == 0:
-                sprinkler.speed = sprinkler.speed * (-1)
+                ##Move sprinkler
+                ##FIXME ought to be a method of the sprinkler itself.
+                sprinkler.xHead = sprinkler.xHead + (WIDTH+(randrange(150, 500)))
+                sprinkler.yHead = randrange(-50, (HEIGHT+50))
+                sprinkler.init_segments()
+    
+                randomDir = randrange(1, 3)
+                if randomDir % 2 == 0:
+                    sprinkler.speed = sprinkler.speed * (-1)
         
                 
-    ##/PROCESSES
+        ##/PROCESSES
     
-    ##DRAW and UPDATE OBJECTS
-    screen.fill((red, green, blue))
+        ##DRAW and UPDATE OBJECTS
+        screen.fill((red, green, blue))
     
-    #FIXME for performance, combine these two loops with the ones above? for readability, maybe not?
+        #FIXME for performance, combine these two loops with the ones above? for readability, maybe not?
     
-    for sprinkler in Rotator:
-        ##Check if sprinkler has been placed before drawing
-        if sprinkler.placed:
-            sprinkler.reDraw()
+        for sprinkler in Rotator:
+            ##Check if sprinkler has been placed before drawing
+            if sprinkler.placed:
+                sprinkler.reDraw()
             
-            #NOTE TODO 20160520: this run time is O(num sprinkler * num runner), because we just have 1 or 2 runners, this is not a big deal
-            #               BUT, if there were lots of runners, we'd probably want to use a sweep line.
-            #               1. keep an ordered list of events, by x value, of sprinkler (position - radius) and (position + radius)
-            #               2. and a stack of ordered runners
-            #                    we'd probably use insertion sort to maintain both of these, as only small changes are needed to each on each frame
-            #                    and we want constant retrieval time.
-            #               3. if the event is a left side,
-            #                   store the sprinkler in an a list ordered by left position
-            #                   store the sprinkler by name in a dictionary/hash table, this will have an index to its list position
-            #               3. if the event is a right side,
-            #                   examine runners in the list until one is encountered past the sweep line
-            #                   if the runner is left of the furthest retained left event, discard the runner
-            #                   check collisions for each runner to this sprinkler.
-            #                   then discard corresponding left event
-            #               
-            #               for each event then, only the runners in the window between the leftest left event and the sweep line will be checked against
-            #                   each sprinkler. the best case scenario would be O 2(sprinklers), and would occur if no explorer was examined twice..
-            #                   the worst case would be if there was a GIANT sprinkler whose left and right events encompassed all events and runners. 
-            #                   in this case, all the runners would have to be examined for each event, so we'd have O 2(sprinklers)(runners)
-            #               if we took advantage of the triangle in which all the collision exists, we could do two sweep lines
-            #                   the first would have an x-ordered list of left and right events of collision triangles that were more narrow on x than y.
-            #                   the second would have a y-ordered list of top and bottom events of collision triangles that were more narrow on y than x.
-            #                   these lists would require similarly small changes, so insertion sort could be used.
-            #                   sprinklers would switch lists very infrequently, so they could be placed in the other list in O logn average case using a quicksort.
-            #               
+                #NOTE TODO 20160520: this run time is O(num sprinkler * num runner), because we just have 1 or 2 runners, this is not a big deal
+                #               BUT, if there were lots of runners, we'd probably want to use a sweep line.
+                #               1. keep an ordered list of events, by x value, of sprinkler (position - radius) and (position + radius)
+                #               2. and a stack of ordered runners
+                #                    we'd probably use insertion sort to maintain both of these, as only small changes are needed to each on each frame
+                #                    and we want constant retrieval time.
+                #               3. if the event is a left side,
+                #                   store the sprinkler in an a list ordered by left position
+                #                   store the sprinkler by name in a dictionary/hash table, this will have an index to its list position
+                #               3. if the event is a right side,
+                #                   examine runners in the list until one is encountered past the sweep line
+                #                   if the runner is left of the furthest retained left event, discard the runner
+                #                   check collisions for each runner to this sprinkler.
+                #                   then discard corresponding left event
+                #               
+                #               for each event then, only the runners in the window between the leftest left event and the sweep line will be checked against
+                #                   each sprinkler. the best case scenario would be O 2(sprinklers), and would occur if no explorer was examined twice..
+                #                   the worst case would be if there was a GIANT sprinkler whose left and right events encompassed all events and runners. 
+                #                   in this case, all the runners would have to be examined for each event, so we'd have O 2(sprinklers)(runners)
+                #               if we took advantage of the triangle in which all the collision exists, we could do two sweep lines
+                #                   the first would have an x-ordered list of left and right events of collision triangles that were more narrow on x than y.
+                #                   the second would have a y-ordered list of top and bottom events of collision triangles that were more narrow on y than x.
+                #                   these lists would require similarly small changes, so insertion sort could be used.
+                #                   sprinklers would switch lists very infrequently, so they could be placed in the other 
+                #                    list in O logn average case using aquicksort.
+                #               
             
-            ##Check if a runner has collided!
-            for oneRunner in Runner:
-                if sprinkler.collision(oneRunner):
-                    if oneRunner.speed > 0:
-                        oneRunner.speed = oneRunner.speed - (oneRunner.defSpeed*0.10)
-                    if red < 225:
-                        red = red + 30
-                    else: red = 0
+                ##Check if a runner has collided!
+                for oneRunner in Runner:
+                    if sprinkler.collision(oneRunner):
+                        if oneRunner.speed > 0:
+                            oneRunner.speed = oneRunner.speed - (oneRunner.defSpeed*0.10)
+                        if red < 225:
+                            red = red + 30
+                        else: red = 0
                     
             
-    for oneRunner in Runner:
-        ##Keyboard
-        keys = pygame.key.get_pressed()
-        oneRunner.getMove(keys)
+        for oneRunner in Runner:
+            ##Keyboard
+            keys = pygame.key.get_pressed()
+            oneRunner.getMove(keys)
         
-        ##Mouse Control
-        mPos = pygame.mouse.get_pos()
-        oneRunner.mouse_control(*mPos)
+            ##Mouse Control
+            mPos = pygame.mouse.get_pos()
+            oneRunner.mouse_control(*mPos)
         
-        oneRunner.reDraw()
+            oneRunner.reDraw()
     
-    ##Display score for runnertop
-    score = myfont.render(str(int(runnerTop.distance)), 1, (255,255,0))
-    screen.blit(score, ((WIDTH-100), (HEIGHT-100)))
+        ##Display score for runnertop
+        score = myfont.render(str(int(runnerTop.distance)), 1, (255,255,0))
+        screen.blit(score, ((WIDTH-100), (HEIGHT-100)))
     
-    pygame.display.flip()
-    ##/DRAW and UPDATE OBJECTS
+        pygame.display.flip()
+        ##/DRAW and UPDATE OBJECTS
     
-    clock.tick(FPS)
+        clock.tick(FPS)
     
-##/Drawing Loooop!
+    ##/Drawing Loooop!
     
